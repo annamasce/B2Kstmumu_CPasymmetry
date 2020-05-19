@@ -3,9 +3,15 @@ import pandas
 import root_numpy
 import matplotlib.pyplot as plt
 
-def L0trigg_selection(data):
+def L0trigg_selection_TOS(data):
     selection = numpy.logical_or(data['B0_L0MuonDecision_TOS'] == 1, data['B0_L0DiMuonDecision_TOS'] == 1)
-    selected_data = data.loc[selection].reset_index()
+    selected_data = data.loc[selection].reset_index(drop=True)
+    # print(len(selected_data))
+    return selected_data
+
+def L0trigg_selection_TIS(data):
+    selection = numpy.logical_or(data['B0_L0MuonDecision_TIS'] == 1, data['B0_L0DiMuonDecision_TIS'] == 1)
+    selected_data = data.loc[selection].reset_index(drop=True)
     # print(len(selected_data))
     return selected_data
 
@@ -24,8 +30,8 @@ def MergeDataframes(data):
     return data_merged
 
 def CP_divide(data):
-    data_B0 = data[data['B0_ID']>0]
-    data_B0bar = data[data['B0_ID']<0]
+    data_B0 = data[data['B0_ID']>0].reset_index(drop=True)
+    data_B0bar = data[data['B0_ID']<0].reset_index(drop=True)
     return data_B0, data_B0bar
 
 def make_asymm_plots(data_B0, data_B0bar, var_name):
@@ -54,13 +60,13 @@ class Dataset(object):
                 filePath = self.path + 'B2Kstmumu_sideband_' + str(year) + '.root'
                 data.append(pandas.DataFrame(root_numpy.root2array(filePath, treename='DecayTree')))
         if self.L0trigger:
-            return L0trigg_selection(MergeDataframes(data))
+            return L0trigg_selection_TIS(MergeDataframes(data))
         else:
             return MergeDataframes(data)
 
     def CP_divide(self):
-        data_B0 = self.data[self.data['B0_ID'] > 0].reset_index()
-        data_B0bar = self.data[self.data['B0_ID'] < 0].reset_index()
+        data_B0 = self.data[self.data['B0_ID'] > 0].reset_index(drop=True)
+        data_B0bar = self.data[self.data['B0_ID'] < 0].reset_index(drop=True)
         return data_B0, data_B0bar
 
 if __name__ == '__main__':
