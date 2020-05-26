@@ -60,7 +60,7 @@ class Dataset(object):
                 filePath = self.path + 'B2Kstmumu_sideband_' + str(year) + '.root'
                 data.append(pandas.DataFrame(root_numpy.root2array(filePath, treename='DecayTree')))
         if self.L0trigger:
-            return L0trigg_selection_TIS(MergeDataframes(data))
+            return L0trigg_selection_TOS(MergeDataframes(data))
         else:
             return MergeDataframes(data)
 

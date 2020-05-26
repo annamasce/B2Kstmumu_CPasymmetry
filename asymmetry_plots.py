@@ -25,64 +25,56 @@ def inv_mass(data, vars):
         mass_array = numpy.append(mass_array, mass)
     return mass_array
 
+binning_scheme = {
+        0: (0.1, 0.98),
+        1: (1.1, 2.5),
+        2: (2.5, 4),
+        3: (4, 6),
+        4: (6, 8),
+        5: (15, 17),
+        6: (17, 19),
+        7: (11, 12.5)
+    }
+
 if __name__ == '__main__':
     dataPath = '/home/anna/master_thesis/data/whole_run2/'
-    saveLocation = '/home/anna/master_thesis/files_asymmetry/results/'
-    plotName = 'wholeRun2_L0triggerTIS'
+    saveLocation = '/home/anna/master_thesis/files_asymmetry/0526/'
+    plotName = '0526_wholeRun2_newBDT'
     fileType = 'sideband'
     years = [2016, 2017, 2018]
     # fileType = 'sideband'
 
-    data_object = Dataset(dataPath, years=years, fileType=fileType, L0trigger=True)
-    data = data_object.get_data()
+    # data_object = Dataset(dataPath, years=years, fileType=fileType, L0trigger=True)
+    # data = data_object.get_data()
+    #
+    # # plt.figure()
+    # # plt.hist((numpy.logical_or(data['B0_L0MuonDecision_TIS']==True, data['B0_L0DiMuonDecision_TIS']==True)).astype('float64'))
+    # # plt.show()
+    #
+    # # data = data[data['Polarity']<0].reset_index(drop=True)
+    # # print(data.head(10))
+    # # plt.figure()
+    # # plt.hist(data['Polarity'])
+    # # plt.show()
+    #
+    # print('Length data after trigger selection:', len(data))
+    # data_B0, data_B0bar = CP_divide(data)
+    # data_B0['phi'] = 0.
+    # print('Adding angular variables to B0 data')
+    # add_angvar_todata(data_B0)
+    # print('Adding angular variables to B0bar data')
+    # add_angvar_todata(data_B0bar)
 
-    plt.figure()
-    plt.hist((numpy.logical_or(data['B0_L0MuonDecision_TIS']==True, data['B0_L0DiMuonDecision_TIS']==True)).astype('float64'))
-    plt.show()
-
-    # data = data[data['Polarity']<0].reset_index(drop=True)
-    # print(data.head(10))
+    # File containing new BDT results and right angular variables already
+    bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2Kstmumu_sideband_wholeRun2.pkl')
     # plt.figure()
-    # plt.hist(data['Polarity'])
+    # plt.hist(bkg['newBDT'], bins=100, density=True)
     # plt.show()
-
-    print('Length data after trigger selection:', len(data))
-    data_B0, data_B0bar = CP_divide(data)
-    data_B0['phi'] = 0.
-    print('Adding angular variables to B0 data')
-    add_angvar_todata(data_B0)
-    print('Adding angular variables to B0bar data')
-    add_angvar_todata(data_B0bar)
-
-    # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2Kstmumu_sideband_wholeRun2.pkl')
-    # # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2KstJpsi_wholeRun2_sWeight_wL0.pkl')
-    # # bkg = L0trigg_selection_TOS(bkg)
-    # print(bkg.head(5))
-    # # plt.figure()
-    # # plt.hist(bkg['q2'], bins=100) # weights=bkg['sWeight'])
-    # # plt.xticks(numpy.arange(0., 39., 1.))
-    # # plt.xlabel('q2')
-    # # plt.show()
-    # # bkg = bkg.loc[bkg['newBDT']>0.82].reset_index(drop=True)
-    # # print('Number of events after BDT cut:', len(bkg))
-    # bkg = bkg.loc[bkg['Polarity']<0.].reset_index(drop=True)
-    # # print('Number of events after polarity selection:', len(bkg))
-    # # bkg = bkg.loc[numpy.logical_or(bkg['q2']<8., bkg['q2']>11.)]
-    # # plt.figure()
-    # # plt.hist(bkg['q2'], bins=100)
-    # # plt.show()
-    # data_B0, data_B0bar = CP_divide(bkg)
-    # # print('Adding angular variables to B0 data')
-    # # add_angvar_todata(data_B0)
-    # # print('Adding angular variables to B0bar data')
-    # # add_angvar_todata(data_B0bar)
-    # # print(data_B0.head(5))
-    # # print(data_B0bar.head(5))
-
-    # Cut on mu muETA
-    # data_B0 = data_B0.loc[data_B0['mu_plus_ETA'] > 3.5].reset_index(drop=True)
-    # data_B0bar = data_B0bar.loc[data_B0bar['mu_minus_ETA'] > 3.5].reset_index(drop=True)
-
+    # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2KstJpsi_wholeRun2_sWeight_wL0.pkl')
+    print(bkg.head(5))
+    data_B0, data_B0bar = CP_divide(bkg)
+    data_B0 = data_B0.loc[data_B0['newBDT'] > 0.82].reset_index(drop=True)
+    data_B0bar = data_B0bar.loc[data_B0bar['newBDT']>0.82].reset_index(drop=True)
 
     if fileType=='Jpsi-sWeight':
         weights_B0 = data_B0['sWeight'].values
@@ -105,9 +97,9 @@ if __name__ == '__main__':
 
     for n, obs in enumerate(observables.keys()):
 
-        B0_hist = TH1D('B0_hist_{}'.format(obs), '', 50, observables[obs][0][0], observables[obs][0][1])
+        B0_hist = TH1D('B0_hist_{}'.format(obs), '', 20, observables[obs][0][0], observables[obs][0][1])
         B0_hist.Sumw2()
-        B0bar_hist = TH1D('B0bar_hist_{}'.format(obs), '', 50, observables[obs][0][0], observables[obs][0][1])
+        B0bar_hist = TH1D('B0bar_hist_{}'.format(obs), '', 20, observables[obs][0][0], observables[obs][0][1])
         B0bar_hist.Sumw2()
         #ratio hist to be done later after filling the histograms
 

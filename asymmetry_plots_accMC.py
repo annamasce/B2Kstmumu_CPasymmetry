@@ -10,7 +10,7 @@ from ang_functions import add_angvar_todata
 
 
 saveLocation = '/vols/lhcb/amascell/asymmetry_plots/'
-plotName = 'flatq2_2016_all_100bins'
+plotName = 'flatq2_2016_100bins_allWeights_newBDT'
 
 # load tree from file
 filePath = '/vols/lhcb/amascell/rootFiles/flatq2_2016_newBDT.root'
@@ -46,27 +46,27 @@ for ie in range(0, inTree.GetEntries()):
     inTree.GetEntry(ie)
     if (ie+1)%100000 == 0:
         print('{} events processed'.format(ie+1))
-
-    for obs in observables.keys():
-        obs_B0 = obs
-        obs_B0bar = obs
-        # if obs=='mu_P':
-        #     obs_B0 = 'mu_plus_P'
-        #     obs_B0bar = 'mu_minus_P'
-        # if obs=='mu_PT':
-        #     obs_B0 = 'mu_plus_PT'
-        #     obs_B0bar = 'mu_minus_PT'
-        # if obs=='mu_TRACK_CHI2NDOF':
-        #     obs_B0 = 'mu_plus_TRACK_CHI2NDOF'
-        #     obs_B0bar = 'mu_minus_TRACK_CHI2NDOF'
-        # if obs=='mu_ETA':
-        #     obs_B0 = 'mu_plus_ETA'
-        #     obs_B0bar = 'mu_minus_ETA'
-        # if getattr(inTree, 'newBDT')>0.82:
-        if getattr(inTree, 'B0_ID')>0:
-            B0_hist[obs].Fill(getattr(inTree, obs_B0))
-        else:
-            B0bar_hist[obs].Fill(getattr(inTree, obs_B0bar))
+    if getattr(inTree, 'newBDT') > 0.82:
+        weight = getattr(inTree, 'track_weight') * getattr(inTree, 'L0_eff_2016') * getattr(inTree, 'Reweights_JpsiK') * getattr(inTree, 'q2_weight')
+        for obs in observables.keys():
+            obs_B0 = obs
+            obs_B0bar = obs
+            # if obs=='mu_P':
+            #     obs_B0 = 'mu_plus_P'
+            #     obs_B0bar = 'mu_minus_P'
+            # if obs=='mu_PT':
+            #     obs_B0 = 'mu_plus_PT'
+            #     obs_B0bar = 'mu_minus_PT'
+            # if obs=='mu_TRACK_CHI2NDOF':
+            #     obs_B0 = 'mu_plus_TRACK_CHI2NDOF'
+            #     obs_B0bar = 'mu_minus_TRACK_CHI2NDOF'
+            # if obs=='mu_ETA':
+            #     obs_B0 = 'mu_plus_ETA'
+            #     obs_B0bar = 'mu_minus_ETA'
+            if getattr(inTree, 'B0_ID')>0:
+                B0_hist[obs].Fill(getattr(inTree, obs_B0), weight)
+            else:
+                B0bar_hist[obs].Fill(getattr(inTree, obs_B0bar), weight)
 
 for n, obs in enumerate(observables.keys()):
 
