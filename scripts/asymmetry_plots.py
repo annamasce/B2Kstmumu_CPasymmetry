@@ -1,12 +1,10 @@
 import numpy
-import pandas
-import root_numpy
 import matplotlib.pyplot as plt
-from data import Dataset, CP_divide, L0trigg_selection_TOS
+from scripts.data import Dataset, CP_divide
 import ROOT
-from ROOT import TH1D, TCanvas, TFile, TTree, TPad, TChain, TDirectoryFile, TGraph, TF1, TGraphErrors, TLine, TGaxis, gStyle, TLegend, TLorentzVector
+from ROOT import TH1D, TCanvas, gStyle, TLegend, TLorentzVector
 ROOT.gROOT.SetBatch(True)
-from ang_functions import add_angvar_todata
+from scripts.ang_functions import add_angvar_todata
 
 
 def make_single_plot(data, var):
@@ -37,16 +35,16 @@ binning_scheme = {
     }
 
 if __name__ == '__main__':
-    dataPath = '/home/anna/master_thesis/data/whole_run2/'
-    saveLocation = '/home/anna/master_thesis/files_asymmetry/0526/'
-    plotName = '0526_wholeRun2_newBDT'
+    dataPath = '/home/anna/master_thesis/data/withBDT/'
+    saveLocation = '/home/anna/master_thesis/files_asymmetry/0601/'
+    plotName = 'run2_BDTcut'
     fileType = 'sideband'
     years = [2016, 2017, 2018]
     # fileType = 'sideband'
 
-    # data_object = Dataset(dataPath, years=years, fileType=fileType, L0trigger=True)
-    # data = data_object.get_data()
-    #
+    data_object = Dataset(dataPath, years=years, fileType=fileType, L0trigger=True)
+    data = data_object.get_data()
+
     # # plt.figure()
     # # plt.hist((numpy.logical_or(data['B0_L0MuonDecision_TIS']==True, data['B0_L0DiMuonDecision_TIS']==True)).astype('float64'))
     # # plt.show()
@@ -57,22 +55,24 @@ if __name__ == '__main__':
     # # plt.hist(data['Polarity'])
     # # plt.show()
     #
-    # print('Length data after trigger selection:', len(data))
-    # data_B0, data_B0bar = CP_divide(data)
-    # data_B0['phi'] = 0.
-    # print('Adding angular variables to B0 data')
-    # add_angvar_todata(data_B0)
-    # print('Adding angular variables to B0bar data')
-    # add_angvar_todata(data_B0bar)
+    print('Length data after trigger selection:', len(data))
+    data_B0, data_B0bar = CP_divide(data)
+    data_B0['phi'] = 0.
+    print('Adding angular variables to B0 data')
+    add_angvar_todata(data_B0)
+    print('Adding angular variables to B0bar data')
+    add_angvar_todata(data_B0bar)
 
-    # File containing new BDT results and right angular variables already
-    bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2Kstmumu_sideband_wholeRun2.pkl')
-    # plt.figure()
-    # plt.hist(bkg['newBDT'], bins=100, density=True)
-    # plt.show()
-    # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2KstJpsi_wholeRun2_sWeight_wL0.pkl')
-    print(bkg.head(5))
-    data_B0, data_B0bar = CP_divide(bkg)
+    # # File containing new BDT results and right angular variables already
+    # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2Kstmumu_sideband_wholeRun2.pkl')
+    # # plt.figure()
+    # # plt.hist(bkg['newBDT'], bins=100, density=True)
+    # # plt.show()
+    # # bkg = pandas.read_pickle('/home/anna/master_thesis/data/withBDT/B2KstJpsi_wholeRun2_sWeight_wL0.pkl')
+    # print(bkg.head(5))
+    # data_B0, data_B0bar = CP_divide(bkg)
+
+
     data_B0 = data_B0.loc[data_B0['newBDT'] > 0.82].reset_index(drop=True)
     data_B0bar = data_B0bar.loc[data_B0bar['newBDT']>0.82].reset_index(drop=True)
 
@@ -85,10 +85,10 @@ if __name__ == '__main__':
                    'costhetak': [[-1., 1.], 'cos(#theta_{k})'],
                    'B0_MM': [[5300, 7000], 'M_{B^{0}} [MeV]'],
                    'Kstar_MM': [[800, 990], 'M_{K^{*}} [MeV]'],
-                   'mu_P': [[5000, 150000], 'P_{#mu} [MeV/c]'],
-                   'mu_PT': [[0, 10000], 'P_{T#mu} [MeV/c]'],
-                   'mu_TRACK_CHI2NDOF': [[0.3, 2.9], '#mu #chi^{2}/DOF'],
-                   'mu_ETA': [[1.7, 5.1], 'eta_{#mu}']
+                   # 'mu_P': [[5000, 150000], 'P_{#mu} [MeV/c]'],
+                   # 'mu_PT': [[0, 10000], 'P_{T#mu} [MeV/c]'],
+                   # 'mu_TRACK_CHI2NDOF': [[0.3, 2.9], '#mu #chi^{2}/DOF'],
+                   # 'mu_ETA': [[1.7, 5.1], 'eta_{#mu}']
                    }
 
     if fileType=='Jpsi-sWeight':
@@ -136,6 +136,9 @@ if __name__ == '__main__':
         B0_hist.GetYaxis().SetTitle('frequency')
         B0_hist.GetXaxis().SetTitle(obs)
         B0bar_hist.GetYaxis().SetTitle('frequency')
+        low_lim = 0.0001
+        up_lim = 1./(observables[obs][0][1] - observables[obs][0][0]) * 3
+        B0_hist.GetYaxis().SetRangeUser(low_lim, up_lim)
         B0bar_hist.GetXaxis().SetTitle(obs)
         # B0_hist.SetStats(0)
         B0bar_hist.SetStats(0)
@@ -153,18 +156,17 @@ if __name__ == '__main__':
         ratio_hist.SetLineColor(1)
         y = ratio_hist.GetYaxis()
         y.SetTitle('ratio B^{0}/#bar{B^{0}}')
-        y.SetRangeUser(0., 3.)
+        y.SetRangeUser(0., 2.)
         x = ratio_hist.GetXaxis()
         x.SetTitle(observables[obs][1])
         ratio_hist.Fit('pol0')
-        #ratio_hist.GetYaxis.SetTitle('ratio')
 
         # Draw histograms and legend
         drawCanv = TCanvas('obs_{}'.format(obs), '{}'.format(obs), 600, 600)
         drawCanv.Divide(1, 2)
         drawCanv.cd(1)
-        B0bar_hist.Draw('hist')
-        B0_hist.Draw('hist same')
+        B0_hist.Draw('hist')
+        B0bar_hist.Draw('hist same')
         leg = TLegend(.75, .7, 0.95, .9, '')
         leg.SetFillColor(0)
         leg.SetTextSize(0.04)
@@ -180,7 +182,6 @@ if __name__ == '__main__':
             drawCanv.Print(saveLocation + plotName + '_' + fileType + '.pdf')
         elif n==0:
             drawCanv.Print(saveLocation + plotName + '_' + fileType + '.pdf(')
-            # drawCanv.Print(saveLocation + plotName + '_' + fileType + '.svg')
         else:
             if n == len(observables)-1:
                 drawCanv.Print(saveLocation + plotName + '_' + fileType + '.pdf)')

@@ -1,12 +1,9 @@
-import numpy
 import pandas
-import root_numpy
-import matplotlib.pyplot as plt
-from data import Dataset, CP_divide, L0trigg_selection_TOS
+from scripts.data import CP_divide
 import ROOT
-from ROOT import TH1D, TCanvas, TFile, TTree, TPad, TChain, TDirectoryFile, TGraph, TF1, TGraphErrors, TLine, TGaxis, gStyle, TLegend, TLorentzVector
+from ROOT import TH1D, TCanvas, gStyle, TLegend
+
 ROOT.gROOT.SetBatch(True)
-from ang_functions import add_angvar_todata
 
 binning_scheme = {
         0: (0.1, 0.98),
@@ -69,11 +66,6 @@ if __name__ == '__main__':
         observables['B0_MM'][0] = [5170, 5400]
         observables['Kstar_MM'][0] = [700, 1600]
 
-    # Define the histograms
-    B0_hist = {}
-    B0bar_hist = {}
-    ratio_hist = {}
-
     for _bin in binning_scheme:
 
         bin_range = binning_scheme[_bin]
@@ -82,12 +74,6 @@ if __name__ == '__main__':
         # plt.hist(data_B0_bin['q2'].values, bins=10)
         # plt.show()
         data_B0bar_bin = data_B0bar.loc[(data_B0bar['q2'] > bin_range[0]) & (data_B0bar['q2'] < bin_range[1])].reset_index(drop=True)
-
-        # # apply BDT cut
-        # data_B0_bin = data_B0_bin.loc[data_B0_bin['newBDT']>0.82].reset_index(drop=True)
-        # print(len(data_B0_bin))
-        # data_B0bar_bin = data_B0bar_bin.loc[data_B0bar_bin['newBDT']>0.82].reset_index(drop=True)
-        # print(len(data_B0bar_bin))
 
         if fileType == 'Jpsi-sWeight':
             weights_B0 = data_B0_bin['sWeight'].values
@@ -154,7 +140,7 @@ if __name__ == '__main__':
             y.SetRangeUser(0., 3.)
             x = ratio_hist.GetXaxis()
             x.SetTitle(observables[obs][1])
-            ratio_hist.Fit('pol1')
+            ratio_hist.Fit('pol0')
             #ratio_hist.GetYaxis.SetTitle('ratio')
 
             # Draw histograms and legend
