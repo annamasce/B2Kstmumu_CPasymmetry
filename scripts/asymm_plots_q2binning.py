@@ -1,5 +1,5 @@
 import pandas
-from scripts.data import CP_divide
+from scripts.data_processing.data import CP_divide
 import ROOT
 from ROOT import TH1D, TCanvas, gStyle, TLegend
 

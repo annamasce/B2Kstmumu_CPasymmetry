@@ -1,10 +1,10 @@
 import numpy
 import matplotlib.pyplot as plt
-from scripts.data import Dataset, CP_divide
+from scripts.data_processing.data import Dataset, CP_divide
 import ROOT
 from ROOT import TH1D, TCanvas, gStyle, TLegend, TLorentzVector
 ROOT.gROOT.SetBatch(True)
-from scripts.ang_functions import add_angvar_todata
+from scripts.data_processing.ang_functions import add_angvar_todata
 
 
 def make_single_plot(data, var):
