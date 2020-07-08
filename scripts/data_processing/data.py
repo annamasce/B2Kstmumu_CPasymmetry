@@ -53,7 +53,7 @@ class Dataset(object):
         data = []
         if self.type == 'Jpsi-sWeight':
             for year in self.years:
-                filePath = self.path + 'B2KstJpsi_' + str(year) + '_sWeight_wL0.root'
+                filePath = self.path + 'B2KstJpsi_' + str(year) + '_sWeight_newBDT.root'
                 data.append(pandas.DataFrame(root_numpy.root2array(filePath, treename='DecayTree')))
         if self.type == 'sideband':
             for year in self.years:

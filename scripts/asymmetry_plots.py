@@ -1,10 +1,10 @@
 import numpy
 import matplotlib.pyplot as plt
-from scripts.data_processing.data import Dataset, CP_divide
+from data_processing.data import Dataset, CP_divide
 import ROOT
 from ROOT import TH1D, TCanvas, gStyle, TLegend, TLorentzVector
 ROOT.gROOT.SetBatch(True)
-from scripts.data_processing.ang_functions import add_angvar_todata
+from data_processing.ang_functions import add_angvar_todata
 
 
 def make_single_plot(data, var):
@@ -34,13 +34,13 @@ binning_scheme = {
         7: (11, 12.5)
     }
 
+nbins = 20
 if __name__ == '__main__':
     dataPath = '/home/anna/master_thesis/data/withBDT/'
-    saveLocation = '/home/anna/master_thesis/files_asymmetry/0601/'
+    saveLocation = '/home/anna/master_thesis/files_asymmetry/0701/'
     plotName = 'run2_BDTcut'
     fileType = 'sideband'
     years = [2016, 2017, 2018]
-    # fileType = 'sideband'
 
     data_object = Dataset(dataPath, years=years, fileType=fileType, L0trigger=True)
     data = data_object.get_data()
@@ -97,9 +97,9 @@ if __name__ == '__main__':
 
     for n, obs in enumerate(observables.keys()):
 
-        B0_hist = TH1D('B0_hist_{}'.format(obs), '', 20, observables[obs][0][0], observables[obs][0][1])
+        B0_hist = TH1D('B0_hist_{}'.format(obs), '', nbins, observables[obs][0][0], observables[obs][0][1])
         B0_hist.Sumw2()
-        B0bar_hist = TH1D('B0bar_hist_{}'.format(obs), '', 20, observables[obs][0][0], observables[obs][0][1])
+        B0bar_hist = TH1D('B0bar_hist_{}'.format(obs), '', nbins, observables[obs][0][0], observables[obs][0][1])
         B0bar_hist.Sumw2()
         #ratio hist to be done later after filling the histograms
 
@@ -131,14 +131,16 @@ if __name__ == '__main__':
             else:
                 B0bar_hist.Fill(event)
 
-        B0_hist.Scale(1. / B0_hist.Integral(), 'width')
-        B0bar_hist.Scale(1. / B0bar_hist.Integral(), 'width')
+        B0_hist.Scale(1. / B0_hist.Integral())
+        B0bar_hist.Scale(1. / B0bar_hist.Integral())
         B0_hist.GetYaxis().SetTitle('frequency')
         B0_hist.GetXaxis().SetTitle(obs)
         B0bar_hist.GetYaxis().SetTitle('frequency')
-        low_lim = 0.0001
-        up_lim = 1./(observables[obs][0][1] - observables[obs][0][0]) * 3
-        B0_hist.GetYaxis().SetRangeUser(low_lim, up_lim)
+        if obs=='phi' or obs=='costhetal' or obs=='costhetak':
+            y_B0 = B0_hist.GetYaxis()
+            low_lim = 0.0001
+            up_lim = (1. / nbins) * 2.5
+            y_B0.SetRangeUser(low_lim, up_lim)
         B0bar_hist.GetXaxis().SetTitle(obs)
         # B0_hist.SetStats(0)
         B0bar_hist.SetStats(0)

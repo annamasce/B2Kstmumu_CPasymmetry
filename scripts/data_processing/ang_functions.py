@@ -79,10 +79,16 @@ def calc_angvar(mplus, mminus, kaon, pion, B, ID):
 
 def add_angvar_todata(data):
     for index, row in data.iterrows():
-        # if index%1000==0:
-        #     print('Processing event', index)
-        mu_plus = TLorentzVector(row['mu_plus_PX'], row['mu_plus_PY'], row['mu_plus_PZ'], row['mu_plus_PE'])
-        mu_minus = TLorentzVector(row['mu_minus_PX'], row['mu_minus_PY'], row['mu_minus_PZ'], row['mu_minus_PE'])
+        mu_plus = TLorentzVector()
+        mu_minus = TLorentzVector()
+        if row['mu_plus_ID'] == -13:
+            mu_plus = TLorentzVector(row['mu_plus_PX'], row['mu_plus_PY'], row['mu_plus_PZ'], row['mu_plus_PE'])
+        else:
+            mu_minus = TLorentzVector(row['mu_plus_PX'], row['mu_plus_PY'], row['mu_plus_PZ'], row['mu_plus_PE'])
+        if row['mu_minus_ID'] == +13:
+            mu_minus = TLorentzVector(row['mu_minus_PX'], row['mu_minus_PY'], row['mu_minus_PZ'], row['mu_minus_PE'])
+        else:
+            mu_plus = TLorentzVector(row['mu_minus_PX'], row['mu_minus_PY'], row['mu_minus_PZ'], row['mu_minus_PE'])
         K = TLorentzVector(row['K_PX'], row['K_PY'], row['K_PZ'], row['K_PE'])
         Pi = TLorentzVector(row['Pi_PX'], row['Pi_PY'], row['Pi_PZ'], row['Pi_PE'])
         B = mu_plus + mu_minus + K + Pi
